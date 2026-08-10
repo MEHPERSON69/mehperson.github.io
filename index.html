@@ -336,8 +336,17 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 
-    animation:
-        rainbowShift 20s linear infinite,
+    animation: rainbowShift 20s linear infinite;
+}
+
+@keyframes rainbowShift {
+    from {
+        background-position: 0% 50%;
+    }
+
+    to {
+        background-position: 400% 50%;
+    }
 }
 
 @keyframes rainbowShift {
