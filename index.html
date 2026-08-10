@@ -21,6 +21,10 @@
       --border: rgba(163, 163, 163, 0.15);
     }
 
+    html {
+      overflow-anchor: none;
+    }
+
     body {
       background: var(--bg);
       color: var(--text);
@@ -263,20 +267,20 @@
 
     #terminal-input {
       position: fixed;
-
-      left: 0;
-      top: 0;
-
-      width: 1px;
-      height: 1px;
-
+      left: 50%;
+      top: 50%;
+      width: 2px;
+      height: 2px;
+      transform: translate(-50%, -50%);
       opacity: 0;
-      border: none;
+      border: 0;
       padding: 0;
       margin: 0;
-
       pointer-events: none;
       z-index: -1;
+      font-size: 16px;
+      line-height: 1;
+      caret-color: transparent;
     }
 
     .t-line { display: flex; gap: 8px; }
@@ -891,11 +895,11 @@
       resetIdleTimer();
 
       requestAnimationFrame(() => {
-    if ("ontouchstart" in window) {
-        terminalInput.focus({ preventScroll: true });
-    } else {
-        termBody.focus({ preventScroll: true });
-    }
+        if ("ontouchstart" in window) {
+            focusMobileTerminal();
+        } else {
+            termBody.focus({ preventScroll: true });
+        }
       });
 
       return;
@@ -1049,6 +1053,7 @@ terminalInput.addEventListener("keydown", (e) => {
 
     requestAnimationFrame(() => {
         terminalInput.value = currentInput;
+        restoreMobilePagePosition();
     });
 
 });
@@ -1238,55 +1243,21 @@ function newPrompt() {
 
     currentCmd = line.querySelector(".t-cmd");
     currentInput = "";
-    
-    if (!("ontouchstart" in window)) {
-    requestAnimationFrame(() => {
-    termBody.scrollTo({
-        top: termBody.scrollHeight,
-        behavior: "smooth"
-    });
-});
-}
 
-}
-function resetIdleTimer() {
-    clearTimeout(idleTimer);
-    idleTimer = setTimeout(resetTerminal, IDLE_TIMEOUT);
-}
-
-function resetTerminal() {
-
-    terminalReady = false;
-
-    termBody.innerHTML = "";
-
-    lineIdx = 0;
-    charIdx = 0;
-
-    currentInput = "";
-
-    typeNext();
-}
-
-termBody.addEventListener("click", () => {
-
-    if ("ontouchstart" in window) {
-        terminalInput.focus({ preventScroll: true });
-    } else {
-        termBody.focus({ preventScroll: true });
+    if (terminalInput) {
+        terminalInput.value = "";
     }
 
-});
-
-terminalInput.addEventListener("input", () => {
-
-    currentInput = terminalInput.value;
-    currentCmd.textContent = currentInput;
-
-});
-
+    if (!("ontouchstart" in window)) {
+        requestAnimationFrame(() => {
+            termBody.scrollTo({
+                top: termBody.scrollHeight,
+                behavior: "smooth"
+            });
+        });
+    }
+}
 function resetIdleTimer() {
-
     clearTimeout(idleTimer);
 
     if (document.activeElement === termBody ||
@@ -1295,6 +1266,63 @@ function resetIdleTimer() {
     }
 
     idleTimer = setTimeout(resetTerminal, IDLE_TIMEOUT);
+}
+
+let mobileScrollLockY = 0;
+let mobileTerminalActive = false;
+
+function restoreMobilePagePosition() {
+    if (!mobileTerminalActive) return;
+    window.scrollTo(0, mobileScrollLockY);
+}
+
+function focusMobileTerminal() {
+    mobileScrollLockY = window.scrollY;
+    mobileTerminalActive = true;
+
+    terminalInput.focus({ preventScroll: true });
+
+    requestAnimationFrame(() => {
+        restoreMobilePagePosition();
+        requestAnimationFrame(restoreMobilePagePosition);
+    });
+}
+
+termBody.addEventListener("focus", () => clearTimeout(idleTimer));
+terminalInput.addEventListener("focus", () => clearTimeout(idleTimer));
+termBody.addEventListener("blur", resetIdleTimer);
+terminalInput.addEventListener("blur", () => {
+    mobileTerminalActive = false;
+    resetIdleTimer();
+});
+
+termBody.addEventListener("keydown", handleKey);
+
+termBody.addEventListener("click", () => {
+    if ("ontouchstart" in window) {
+        focusMobileTerminal();
+    } else {
+        termBody.focus({ preventScroll: true });
+    }
+});
+
+terminalInput.addEventListener("input", () => {
+    currentInput = terminalInput.value;
+    if (currentCmd) currentCmd.textContent = currentInput;
+    restoreMobilePagePosition();
+});
+
+terminalInput.addEventListener("keydown", (e) => {
+    handleKey(e);
+    requestAnimationFrame(() => {
+        terminalInput.value = currentInput;
+        restoreMobilePagePosition();
+    });
+});
+
+if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", restoreMobilePagePosition);
+    window.visualViewport.addEventListener("scroll", restoreMobilePagePosition);
 }
 
   // Start everything
