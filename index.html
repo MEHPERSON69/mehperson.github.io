@@ -337,30 +337,23 @@
     -webkit-text-fill-color: transparent;
 
     animation:
-        rainbowShift 8s linear infinite,
-        breathe 3s ease-in-out infinite;
+        rainbowShift 20s linear infinite,
 }
 
 @keyframes rainbowShift {
-    from {
+    0% {
         background-position: 0%;
     }
-    to {
+
+    50% {
+        background-position: 200%;
+    }
+
+    100% {
         background-position: 400%;
     }
 }
 
-@keyframes breathe {
-    0%,100% {
-        transform: scale(1);
-        opacity: .85;
-    }
-
-    50% {
-        transform: scale(1.02);
-        opacity: 1;
-    }
-}
 
 
     /* Gaming section */
