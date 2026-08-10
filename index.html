@@ -1306,13 +1306,13 @@ termBody.addEventListener("click", () => {
 
 terminalInput.addEventListener("input", () => {
 
+    const terminalScrollTop = termBody.scrollTop;
+
     currentInput = terminalInput.value;
     currentCmd.textContent = currentInput;
 
     requestAnimationFrame(() => {
-        if (document.activeElement === terminalInput) {
-            window.scrollTo(0, window.scrollY);
-        }
+        termBody.scrollTop = terminalScrollTop;
     });
 
 });
