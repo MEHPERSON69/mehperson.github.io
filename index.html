@@ -949,92 +949,99 @@ function handleKey(e) {
 
     if (!terminalReady) return;
 
+    const savedTerminalScroll = termBody.scrollTop;
+
     resetIdleTimer();
     termBody.addEventListener("mousemove", resetIdleTimer);
-    termBody.addEventListener("click", resetIdleTimer); 
+    termBody.addEventListener("click", resetIdleTimer);
 
     if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
+
         currentInput += e.key;
         currentCmd.textContent = currentInput;
     }
 
     if (e.key === "Backspace") {
-      e.preventDefault();
-      currentInput = currentInput.slice(0, -1);
-      currentCmd.textContent = currentInput;
+        e.preventDefault();
+
+        currentInput = currentInput.slice(0, -1);
+        currentCmd.textContent = currentInput;
     }
 
     if (e.key === "Enter") {
-    e.preventDefault();
+        e.preventDefault();
 
-    const cmd = currentInput.trim();
+        const cmd = currentInput.trim();
 
-    if (cmd !== "") {
-        history.push(cmd);
-        historyIndex = history.length;
-    }
+        if (cmd !== "") {
+            history.push(cmd);
+            historyIndex = history.length;
+        }
 
-    executeCommand(cmd);
+        executeCommand(cmd);
     }
 
     if (e.key === "ArrowUp") {
-
-    e.preventDefault();
-
-    if (historyIndex > 0) {
-        historyIndex--;
-        currentInput = history[historyIndex];
-        currentCmd.textContent = currentInput;
-    }
-
-}
-
-    if (e.key === "ArrowDown") {
-
         e.preventDefault();
 
-    if (historyIndex < history.length - 1) {
-         historyIndex++;
-         currentInput = history[historyIndex];
-     } else {
-        historyIndex = history.length;
-       currentInput = "";
-       }
+        if (historyIndex > 0) {
+            historyIndex--;
+            currentInput = history[historyIndex];
+            currentCmd.textContent = currentInput;
+        }
+    }
 
-     currentCmd.textContent = currentInput;
+    if (e.key === "ArrowDown") {
+        e.preventDefault();
 
-}
-    if (e.key === "Tab") {
+        if (historyIndex < history.length - 1) {
+            historyIndex++;
+            currentInput = history[historyIndex];
+        } else {
+            historyIndex = history.length;
+            currentInput = "";
+        }
 
-    e.preventDefault();
-
-    const commands = [
-        "help",
-        "whoami",
-        "about",
-        "skills",
-        "now",
-        "ls",
-        "cat about.txt",
-        "cat now.txt",
-        "cat contact.txt",
-        "MEH",
-        "clear"
-    ];
-
-    const match = commands.find(c =>
-        c.toLowerCase().startsWith(currentInput.toLowerCase())
-    );
-
-    if (match) {
-        currentInput = match;
         currentCmd.textContent = currentInput;
     }
 
-}
+    if (e.key === "Tab") {
+        e.preventDefault();
 
+        const commands = [
+            "help",
+            "whoami",
+            "about",
+            "skills",
+            "now",
+            "ls",
+            "cat about.txt",
+            "cat now.txt",
+            "cat contact.txt",
+            "MEH",
+            "clear"
+        ];
 
+        const match = commands.find(c =>
+            c.toLowerCase().startsWith(currentInput.toLowerCase())
+        );
+
+        if (match) {
+            currentInput = match;
+            currentCmd.textContent = currentInput;
+        }
+    }
+
+    // Restore the terminal's previous scroll position
+    // for normal typing/navigation.
+    // Enter is excluded because executing a command
+    // should be allowed to scroll to the new output.
+    if (e.key !== "Enter") {
+        requestAnimationFrame(() => {
+            termBody.scrollTop = savedTerminalScroll;
+        });
+    }
 }
 
 termBody.addEventListener("focus", () => clearTimeout(idleTimer));
