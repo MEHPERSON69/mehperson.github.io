@@ -314,10 +314,11 @@
 
     .rgb-ascii {
     white-space: pre;
-    font-family: inherit;
+    font-family: "Courier New", monospace;
     font-size: 0.9rem;
     line-height: 1.15;
     font-weight: 700;
+    font-synthesis: none;
 
     background: linear-gradient(
         90deg,
@@ -334,6 +335,8 @@
     background-size: 400% 100%;
 
     -webkit-background-clip: text;
+    background-clip: text;
+
     -webkit-text-fill-color: transparent;
 
     animation: rainbowShift 8s linear infinite;
