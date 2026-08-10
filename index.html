@@ -336,7 +336,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 
-    animation: rainbowShift 8s linear infinite;
+    animation: rainbowShift 20s linear infinite;
 }
 
 @keyframes rainbowShift {
@@ -482,9 +482,9 @@
       }
 
       .rgb-ascii {
-        font-size: 0.58rem;
+        font-size: min(0.9rem, 2vw);
         line-height: 1.1;
-        transform: none;
+        max-width: 100%;
       }
 
       .logo {
