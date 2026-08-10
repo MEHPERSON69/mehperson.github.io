@@ -1290,7 +1290,14 @@ function resetTerminal() {
 termBody.addEventListener("click", () => {
 
     if ("ontouchstart" in window) {
+        const scrollY = window.scrollY;
+
         terminalInput.focus({ preventScroll: true });
+
+        requestAnimationFrame(() => {
+            window.scrollTo(0, scrollY);
+        });
+
     } else {
         termBody.focus({ preventScroll: true });
     }
@@ -1301,6 +1308,12 @@ terminalInput.addEventListener("input", () => {
 
     currentInput = terminalInput.value;
     currentCmd.textContent = currentInput;
+
+    requestAnimationFrame(() => {
+        if (document.activeElement === terminalInput) {
+            window.scrollTo(0, window.scrollY);
+        }
+    });
 
 });
 
